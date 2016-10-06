@@ -1,60 +1,43 @@
-/* **********
-   Fail Code
-   UnDeBuged
-   ********** */
-
 #include <bits/stdc++.h>
 using namespace std;
-#define N 100005
-bool mark[N];
-vector<int>g[N];
-int Stack[N], top;
+#define N 50005
+#define M 400005
+int to[M], nxt[M], w[M], head[N], totE, vis[M];
+int sta[N], fail, cnt, tot;
 
-inline void adde(int u, int v) {
-	g[u].push_back(v);
-	g[v].push_back(u);
-}
-
-bool dfs(int u) {
-	if (mark[u^1]) return false;
-	if (mark[u]) return true;
-	mark[u] = true; Stack[++top] = u;
-	for (int i = 0; i < g[u].size(); ++i) 
-	  if (!dfs(g[u][i])) return false;
-	return true;
-}
-
-bool Try(int n) {
-	for (int i = 2, t = n << 2; i <= t; i += 2)
-	  if (!mark[i] && !mark[i^1]) {
-		  top = 0;
-		  if (!dfs(i)) {
-			  while(top) mark[Stack[top--]]=false;
-			  if(!dfs(i^1)) return false;
+void dfs(int u) {
+	++tot; if (sta[u]) ++cnt;
+	for (int i = head[u]; ~i; i = nxt[i])
+	  if (!vis[i]) {
+		  vis[i] = vis[i^1] = true;
+		  if (~sta[to[i]]) {
+			  if (sta[u] ^ sta[to[i]] ^ w[i]) fail = 1;
+		  } else {
+			  sta[to[i]] = sta[u] ^ w[i];
+			  dfs(to[i]);
 		  }
 	  }
-	return true;
 }
 
-
 int main() {
-	int n, m, a, b, s;
+	int n, m, a, b, c;
 	scanf("%d%d", &n, &m);
+	memset(head, -1, N << 2);
+	memset(sta, -1, N << 2);
 	while (m--) {
-		scanf("%d%d%d", &a, &b, &s);
-		if (s) {
-			adde(a<<1,b<<1|1);
-			adde(b<<1,a<<1|1);
-		} else {
-			adde(a<<1,b<<1);
-			adde(a<<1|1,b<<1|1);
-		}
+		scanf("%d%d%d", &a, &b, &c);
+		to[totE]=b,w[totE]=c,nxt[totE]=head[a],head[a]=totE++;
+		to[totE]=a,w[totE]=c,nxt[totE]=head[b],head[b]=totE++;
 	}
-	if (Try(n)) {
-		int cnt1, cnt2;
-		for (int i = 2, t = n << 1; i <= t; i += 2)
-		  cnt1 += mark[i], cnt2 += mark[i^1];
-		printf("%d\n", min(cnt1,cnt2));
-	} else puts("Pan must forget something.");
+	int ans = 0;
+	for (int i = 1; i <= n && !fail; ++i)
+	  if (sta[i] < 0) {
+		tot = cnt = 0; sta[i] = 0;
+		dfs(i); if (tot-cnt<cnt) cnt = tot - cnt;
+		ans += cnt;
+	  }
+	if (fail) return puts("Pan must forget something."), 0;
+	int cnt = 0;
+	printf("%d\n",ans);
 	return 0;
 }
