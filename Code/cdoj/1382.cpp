@@ -1,3 +1,8 @@
+/* **********
+   Fail Code
+   UnDeBuged
+   ********** */
+
 #include <bits/stdc++.h>
 using namespace std;
 #define N 100005
