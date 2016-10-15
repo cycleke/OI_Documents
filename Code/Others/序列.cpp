@@ -5,8 +5,7 @@
 int a[N],pri[M],cnp,e[M],id[M],cnop;
 bool vis[M];
 void pre() {
-	int ha=sqrt(M);
-	for(int i=2,j;i<=ha;++i) {
+	for(int i=2,j;i<M;++i) {
 		if(!vis[i]) id[i]=cnp,pri[cnp++]=i;
 		for(j=0;j<cnp&&(long long)pri[j]*i<M;++j) {
 			vis[pri[j]*i]=true;

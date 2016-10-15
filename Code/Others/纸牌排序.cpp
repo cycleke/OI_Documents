@@ -8,7 +8,7 @@ int card[1005][1005],*f[1005],p[1005];
 bool cmp(int *a, int *b) {
 	for (int i=1;i<=*a && i<=*b;++i)
 	  if(a[i]^b[i]) return a[i]<b[i];
-	return *a < *b;
+	return *a > *b;
 }
 priority_queue< pii, vector< pii >, greater < pii > >heap;
 int main() {
