@@ -1,101 +1,101 @@
 #include<cstdio>
+#include<queue>
+#include<cstdlib>
 #include<iostream>
 #include<cstring>
-#include<queue>
 using namespace std;
-
-struct edge{
-    int f,c,to,from;
-    edge *next,*fan;
-};
-int ca[1000000 + 10];
-edge* used[1000000 + 10];
-edge* head[1000000 +10];
-
-void adde(const int& a,const int& b,const int& c)
-{
-    edge *n1 = new edge,*n2 = new edge;
-    if(a == b)
-    {
-    	for(int i = 0;i <= 100;++i)
-    	++i;
-    	
-    }
-    n1->from = a,n1->to = b,n1->c = c,n1->f = 0,n1->next = head[a],n1->fan = n2,head[a] = n1;
-    n2->from = b,n2->to = a,n2->c = c,n2->f = 0,n2->next = head[b],n2->fan = n1,head[b] = n2;
+#define maxe 2000000
+#define ni (c<'0'|'9'<c)
+inline int geti() {
+    register int a; register char c,f=0;
+    while(c=getchar(),ni)f|=c=='-';a=c-'0';
+    while(c=getchar(),!ni)a=(a<<3)+(a<<1)+c-'0';
+    return f?-a:a;
 }
-
-void bfs(const int& e)
+struct edge{
+    int to,weight;
+    edge* next;
+}*head[maxe],CD[maxe*5],*cd=CD;
+  
+int S,T,n,m;
+bool inq[maxe];
+int d[maxe];
+int f[maxe];
+inline void adde(const int& a,const int& b,const int& c)
 {
-    queue<int>q;
-    q.push(1);
-    memset(ca,0,sizeof(ca));
-    ca[1] = 1 << 30;
+    cd->to = b,cd->weight = c;
+    cd->next = head[a];
+    head[a] = cd++;
+}
+  
+inline void input()
+{
+    int e=1,f=2,i,j,a,b,c;
+    for(i=0,a,b,c;i<n;++i)
+        for(j=1;j<m;++j){
+            c=geti();
+            if(!i) a=T,b=f,f+=2;
+            else if(i==n-1) a=e,b=0,e+= 2;
+            else a=e,b=f,e+=2,f+=2;
+            adde(a,b,c);
+            adde(b,a,c);
+        }
+    e = 1,f = 2;
+    for(i=1;i<n;++i)
+        for(j=0;j<m;++j)
+        {
+            c=geti();
+            if(!j) a=0,b=e,e+=2;
+            else if(j==m-1) a=f,b=T,f+=2;
+            else a=e,b=f,e+=2,f+=2;
+            adde(a,b,c);adde(b,a,c);
+        }
+    e = 1,f = 2;
+    for(i = 1,c;i < n;++i)
+        for(j = 1;j < m;++j)
+        {
+            c=geti();
+            adde(e,f,c);
+            adde(f,e,c);
+            e+=2,f+=2;
+        }
+}
+queue<int>q;
+void work()
+{
+    memset(d,127,sizeof(d));
+    d[0] = 0; edge *i;
+    int s,v; q.push(0);
     while(!q.empty())
     {
-        int s = q.front();q.pop();
-        if(s == e) return;
-        for(edge* i = head[s];i != NULL;i = i->next)
-        {
-            int t = i->to;
-			if(t == e)
-            {
-               	int qq = 10;
-               	while(qq) --qq;
-            }
-            if(!ca[t] && i->c > i->f){
-                q.push(t);
-                used[t] = i;
-                
-                ca[t] = min(i->c - i->f,ca[s]);
+        s=q.front();q.pop();
+        inq[s] = false;
+        for(i=head[s];i;i=i->next){
+            if(d[v=i->to]>d[s]+i->weight){
+                d[v]=d[s]+i->weight;
+                f[v]=s;
+                if(!inq[v]){
+                    q.push(v);
+                    inq[v] = true;
+                }
             }
         }
     }
+    printf("%d",d[T]);
 }
-
-void work(const int& n,const int& m)
-{
-    int s = 1,e = m * n;
-    long long ans = 0;
-    while(1)
-    {
-        bfs(e);
-        if(!ca[e]) break;
-        for(edge* i = used[e];i->from != 1;i = used[i->from])
-        {
-            i->f += ca[e];
-            i->fan->f -= ca[e];
-        }
-        ans+= ca[e];
-    }
-    printf("%lld",ans);
-}
-
+  
 int main()
 {
-    int n,m;
-    scanf("%d%d",&n,&m);
-
-    int a;
-    for(int i = 0;i < n;++i)
-    for(int j = 1;j < m;++j)
-    {
-        scanf("%d",&a);
-        adde(i * m + j,i * m + j + 1,a);
+    n=geti(),m=geti();
+    T = (n - 1)*(m - 1)*2 + 1;
+    if(n == 1 || m == 1){
+        int ans = 1 << 30;
+        int a;
+        while(scanf("%d",&a) == 1) ans = min(a,ans);
+        printf("%d\n",ans);
+        return 0;
     }
-    for(int i = 1;i < n;++i)
-    for(int j = 0;j < m;++j)
-    {
-        scanf("%d",&a);
-        adde(m * (i - 1) + j +1 ,m * i + j + 1,a);
-    }
-    for(int i = 1;i < n;++i)
-    for(int j = 1;j < m;++j)
-    {
-        scanf("%d",&a);
-        adde(j + m * (i - 1),m * i + j + 1,a);
-    }
-    work(n,m);
-
+    input();
+    work();
     return 0;
 }
